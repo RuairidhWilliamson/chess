@@ -10,6 +10,7 @@ use super::engine_config::EngineConfig;
 use super::game::Game;
 use crate::chess::{board::Board, r#move::Move, fen_parser};
 use rand::{seq::SliceRandom, thread_rng};
+use std::thread;
 
 pub struct Engine {
     // frame_queue: Arc<Mutex<BinaryHeap<BoardFrame>>>,
@@ -116,14 +117,15 @@ impl Engine {
         let mut best_moves: Vec<Move> = Vec::default();
         let mut c = 0;
         let total = possible_moves.len();
-        for i in possible_moves {
+        let handles: Vec<thread::JoinHandle<(Move, f64)>> = possible_moves.iter().map(|i| {
+            thread::spawn(move || {
+                let frame = frame.branch(*i);
+                (*i, &self.recursive_move(frame))
+            })
+        }).collect();
+        for handle in handles {
+            let (i, value) = handle.join().expect("Handle thread join");
             c += 1;
-            print!("    {} {}%\r", i, 100 * c / total);
-            // print!("{}", i);
-            io::stdout().flush().unwrap();
-            let frame = frame.branch(i);
-            let value = self.recursive_move(&frame);
-            // println!(" => {}       ", value);
             if value == f64::INFINITY {
                 best_moves.clear();
                 best_moves.push(i);
@@ -137,8 +139,6 @@ impl Engine {
                 best_moves.push(i);
             }
         }
-        print!("                     \r");
-        io::stdout().flush().unwrap();
         if self.config.debug {
             println!("There are {} moves that are evaluated at {}", best_moves.len(), highest_value);
         }
@@ -147,7 +147,7 @@ impl Engine {
         (*best_move, highest_value)
     }
 
-    fn recursive_move(&mut self, frame: &BoardFrame) -> f64 {
+    fn recursive_move(&mut self, frame: BoardFrame) -> f64 {
         let board = &frame.board;
         self.moves_analysed += 1;
         let possible_moves = board.possible_moves();
