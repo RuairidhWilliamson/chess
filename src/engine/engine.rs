@@ -1,6 +1,6 @@
 extern crate rand;
 
-use std::io::{self, Write};
+use std::io::Write;
 use std::f64;
 use std::sync::mpsc::{Receiver, Sender, channel};
 use std::time::Instant;
@@ -117,15 +117,19 @@ impl Engine {
         let mut best_moves: Vec<Move> = Vec::default();
         let mut c = 0;
         let total = possible_moves.len();
+        let config = self.config;
         let handles: Vec<thread::JoinHandle<(Move, f64)>> = possible_moves.iter().map(|i| {
+            let i = i.clone();
+            let new_frame = frame.branch(i);
             thread::spawn(move || {
-                let frame = frame.branch(*i);
-                (*i, &self.recursive_move(frame))
+                (i, Self::recursive_move(config, new_frame))
             })
         }).collect();
         for handle in handles {
             let (i, value) = handle.join().expect("Handle thread join");
             c += 1;
+            print!("    {} {}% => {}\r", i, c * 100 / total, value);
+            std::io::stdout().flush().expect("Flush stdout");
             if value == f64::INFINITY {
                 best_moves.clear();
                 best_moves.push(i);
@@ -147,23 +151,19 @@ impl Engine {
         (*best_move, highest_value)
     }
 
-    fn recursive_move(&mut self, frame: BoardFrame) -> f64 {
+    fn recursive_move(config: EngineConfig, frame: BoardFrame) -> f64 {
         let board = &frame.board;
-        self.moves_analysed += 1;
         let possible_moves = board.possible_moves();
         if possible_moves.len() == 0 {
             return if board.is_check(frame.side) { f64::INFINITY } else { 0f64 };
         }
         if frame.depth <= 0 || frame.deep_depth <= 0 {
-            if self.max_depth_reached < self.config.deep_depth - frame.deep_depth {
-                self.max_depth_reached = self.config.deep_depth - frame.deep_depth;
-            }
             return -MaterialEvaluator::evaluate(&board, frame.side);
         }
         let mut highest_value = f64::NEG_INFINITY;
         for i in possible_moves {
-            let new_frame = &frame.branch(i);
-            let value = self.recursive_move(new_frame);
+            let new_frame = frame.branch(i);
+            let value = Self::recursive_move(config, new_frame);
             if value == f64::INFINITY {
                 highest_value = value;
             }
