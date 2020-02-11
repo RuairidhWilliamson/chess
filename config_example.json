@@ -1,0 +1,11 @@
+{
+    "lichess": {
+        "api_key": "",
+        "my_id": "",
+        "base_url": "https://lichess.org/api/",
+        "challenge_filter": {
+            "variant_whitelist": ["standard"],
+            "time_control_whitelist": ["unlimited"]
+        }
+    }
+}
