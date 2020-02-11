@@ -11,6 +11,7 @@ use std::thread;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
+    println!("Board size: {}", std::mem::size_of::<chess::board::Board>());
 
     if args.len() == 3 && args[1] == "puzzle" {
         run_puzzle(args);

@@ -4,6 +4,7 @@ use std::io::{self, Write};
 use std::f64;
 use std::sync::mpsc::{Receiver, Sender, channel};
 use std::time::Instant;
+use std::collections::BinaryHeap;
 use super::board_frame::BoardFrame;
 use super::evaluator::MaterialEvaluator;
 use super::engine_config::EngineConfig;
@@ -12,7 +13,7 @@ use crate::chess::{board::Board, r#move::Move, fen_parser};
 use rand::{seq::SliceRandom, thread_rng};
 
 pub struct Engine {
-    // frame_queue: Arc<Mutex<BinaryHeap<BoardFrame>>>,
+    frame_queue: BinaryHeap<BoardFrame>,
     max_depth_reached: isize,
     moves_analysed: u128,
     config: EngineConfig
@@ -25,7 +26,7 @@ impl Engine {
 
     pub fn run_fen_engine(fen: String, config: EngineConfig) -> Option<Move> {
         let mut engine = Engine{
-            // frame_queue: Arc::new(Mutex::new(BinaryHeap::new())),
+            frame_queue: BinaryHeap::new(),
             max_depth_reached: 0,
             moves_analysed: 0,
             config,
@@ -44,7 +45,7 @@ impl Engine {
 
     pub fn start_receiver_engine(rx: Receiver<Game>, perform_move: fn(&str, &str) -> bool, config: EngineConfig) {
         let mut engine = Engine{
-            // frame_queue: Arc::new(Mutex::new(BinaryHeap::new())),
+            frame_queue: BinaryHeap::new(),
             max_depth_reached: 0,
             moves_analysed: 0,
             config,
@@ -73,10 +74,29 @@ impl Engine {
             depth: self.config.depth,
             deep_depth: self.config.deep_depth,
             game_id: game.game_id,
-            side: game.my_side
+            side: game.my_side,
+            evaluation: None,
+            moves: Vec::default(),
         };
-//        self.frame_queue.push(&frame);
-        self.process_move(&frame)
+        self.frame_queue.push(frame);
+        self.process_frames();
+        None
+    }
+
+    fn process_frames(&mut self) {
+        loop {
+            let mut frame: BoardFrame = match self.frame_queue.pop() {
+                Some(f) => f,
+                None => break,
+            };
+            if frame.depth <= 0 || frame.deep_depth <= 0 {
+                frame.evaluation = Some(MaterialEvaluator::evaluate(&frame.board, frame.side));
+            } else {
+                for i in frame.board.possible_moves() {
+                    self.frame_queue.push(frame.branch(i));
+                }
+            }
+        }
     }
 
     fn process_move(&mut self, frame: &BoardFrame) -> Option<Move> {

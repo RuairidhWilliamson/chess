@@ -11,6 +11,8 @@ pub struct BoardFrame {
     pub priority: usize,
     pub depth: isize,
     pub deep_depth: isize,
+    pub evaluation: Option<f64>,
+    pub moves: Vec<Move>,
 }
 
 impl BoardFrame {
@@ -19,7 +21,8 @@ impl BoardFrame {
         
         let deep = MaterialEvaluator::evaluate(&new_board, Colour::White) != MaterialEvaluator::evaluate(&self.board, Colour::White)
             || new_board.is_check(new_board.turn);
-
+        let mut moves = self.moves.clone();
+        moves.push(m);
         Self{
             board: new_board,
             game_id: self.game_id.clone(),
@@ -27,6 +30,8 @@ impl BoardFrame {
             priority: self.priority,
             depth: self.depth - if deep {0} else {1},
             deep_depth: self.deep_depth - 1,
+            evaluation: None,
+            moves,
         }
     }
 }
