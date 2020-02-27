@@ -91,14 +91,14 @@ impl Engine {
         println!("\n--Processing move--");
         println!("There are {} moves", possible_moves.len());
         }
-        
+
         let now = Instant::now();
         let (best_move, highest_value) = self.recursive_first_move(&frame);
         if self.config.debug {
             println!("Evaluated: {} => {}", best_move, highest_value);
             println!("{} total moves analysed. {} max depth.", self.moves_analysed, self.max_depth_reached);
             println!("{}s", now.elapsed().as_secs_f32());
-        
+
             let opponents_frame = frame.branch(best_move);
             if self.config.debug && !opponents_frame.board.possible_moves().is_empty() {
                 let (opponents_best_move, opponents_value) = self.recursive_first_move(&opponents_frame);
@@ -119,11 +119,9 @@ impl Engine {
         for i in possible_moves {
             c += 1;
             print!("    {} {}%\r", i, 100 * c / total);
-            // print!("{}", i);
             io::stdout().flush().unwrap();
             let frame = frame.branch(i);
             let value = self.recursive_move(&frame);
-            // println!(" => {}       ", value);
             if value == f64::INFINITY {
                 best_moves.clear();
                 best_moves.push(i);

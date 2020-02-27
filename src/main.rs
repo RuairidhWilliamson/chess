@@ -28,8 +28,8 @@ fn main() {
 
 fn run_puzzle(args: Vec<String>) {
     let config = EngineConfig{
-        depth: 2,
-        deep_depth: 5,
+        depth: 3,
+        deep_depth: 3,
         debug: true,
     };
     let puzzle_line_number = args[2].parse::<usize>().unwrap();

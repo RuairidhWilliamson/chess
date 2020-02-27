@@ -16,9 +16,10 @@ pub struct BoardFrame {
 impl BoardFrame {
     pub fn branch(&self, m: Move) -> Self {
         let new_board = self.board.branch(m);
-        
+
         let deep = MaterialEvaluator::evaluate(&new_board, Colour::White) != MaterialEvaluator::evaluate(&self.board, Colour::White)
-            || new_board.is_check(new_board.turn);
+            || new_board.is_check(new_board.turn)
+            || self.board.is_check(self.board.turn);
 
         Self{
             board: new_board,
