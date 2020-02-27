@@ -8,6 +8,7 @@ use engine::engine::Engine;
 use engine::engine_config::EngineConfig;
 use std::env;
 use std::thread;
+use chess::fen_parser::parse;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -34,6 +35,7 @@ fn run_puzzle(args: Vec<String>) {
     let puzzle_line_number = args[2].parse::<usize>().unwrap();
     match get_puzzle(puzzle_line_number) {
         Some((fen, moves)) => {
+            println!("{:?}", parse(&fen).unwrap());
             next_move(&fen, &moves, config);
         },
         None => (),

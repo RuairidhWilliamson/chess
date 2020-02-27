@@ -3,11 +3,11 @@ use std::io::{BufRead, BufReader};
 
 use crate::engine::engine::Engine;
 use crate::engine::engine_config::EngineConfig;
-    
+
 const PUZZLES_PATH: &str = "puzzles.txt";
 
 fn get_puzzles_buf() -> BufReader<File> {
-    
+
     let file = File::open(PUZZLES_PATH).unwrap();
     let reader = BufReader::new(file);
     reader
@@ -20,7 +20,7 @@ pub fn get_puzzle(puzzle_line: usize) -> Option<(String, String)> {
 }
 
 pub fn next_move(fen: &String, moves: &String, config: EngineConfig) -> bool {
-    
+
     let best_move = Engine::run_fen_engine(String::from(fen), config);
     println!("Engine move is {}", best_move.unwrap());
     match best_move {
