@@ -65,6 +65,6 @@ fn run_lichess_bot(args: Vec<String>) {
         };
         Engine::start_receiver_engine(rx, make_move_func, config);
     });
-    lichess::start_bot(tx).unwrap();
+    lichess::start_bot(tx).expect("Start bot");
     handle.join().unwrap();
 }

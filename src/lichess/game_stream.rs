@@ -15,7 +15,7 @@ use super::API;
 impl API {
     pub fn run_game_stream(&self, game_id: String, tx: Sender<Game>) {
         let url = format!("bot/game/stream/{}", game_id);
-        let response: reqwest::Response = self.auth_get(url).unwrap();
+        let response: reqwest::Response = self.auth_get(url).expect("Get game stream");
         let mut game_stream = GameStream {
             api: self.clone(),
             game_full: None,
@@ -34,6 +34,7 @@ impl API {
                 buffer.write_char(c).unwrap();
             }
         }
+        println!("{}", buffer);
     }
 }
 

@@ -89,8 +89,8 @@ impl Engine {
         self.max_depth_reached = 0;
         self.moves_analysed = 0;
         if self.config.debug {
-        println!("\n--Processing move--");
-        println!("There are {} moves", possible_moves.len());
+            println!("\n--Processing move--");
+            println!("There are {} moves", possible_moves.len());
         }
 
         let now = Instant::now();
@@ -115,8 +115,6 @@ impl Engine {
         let possible_moves = board.possible_moves();
         let mut highest_value = f64::NEG_INFINITY;
         let mut best_moves: Vec<Move> = Vec::default();
-        let mut c = 0;
-        let total = possible_moves.len();
         let config = self.config;
         let handles: Vec<thread::JoinHandle<(Move, f64)>> = possible_moves.iter().map(|i| {
             let i = i.clone();
@@ -127,8 +125,6 @@ impl Engine {
         }).collect();
         for handle in handles {
             let (i, value) = handle.join().expect("Handle thread join");
-            c += 1;
-            print!("    {} {}% => {}\r", i, c * 100 / total, value);
             std::io::stdout().flush().expect("Flush stdout");
             if value == f64::INFINITY {
                 best_moves.clear();
