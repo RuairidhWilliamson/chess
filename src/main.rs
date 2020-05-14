@@ -27,11 +27,7 @@ fn main() {
 }
 
 fn run_puzzle(args: Vec<String>) {
-    let config = EngineConfig{
-        depth: 2,
-        deep_depth: 5,
-        debug: true,
-    };
+    let config = EngineConfig::default_debug(true);
     let puzzle_line_number = args[2].parse::<usize>().unwrap();
     match get_puzzle(puzzle_line_number) {
         Some((fen, moves)) => {
@@ -42,21 +38,13 @@ fn run_puzzle(args: Vec<String>) {
 }
 
 fn run_fen(args: Vec<String>) {
-    let config = EngineConfig{
-        depth: 2,
-        deep_depth: 5,
-        debug: false,
-    };
+    let config = EngineConfig::default();
     let fen = args[1..].join(" ");
     Engine::run_fen_engine(fen, config);
 }
 
 fn run_lichess_bot(args: Vec<String>) {
-    let config = EngineConfig{
-        depth: 2,
-        deep_depth: 5,
-        debug: args.get(1).unwrap_or(&String::default()) == "debug",
-    };
+    let config = EngineConfig::default_debug(args.get(1).unwrap_or(&String::default()) == "debug");
     let (tx, rx) = Engine::channels();
     let handle = thread::spawn(move || {
         let make_move_func = |game_id: &str, r#move: &str| {

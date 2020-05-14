@@ -45,11 +45,7 @@ mod tests {
 
     #[test]
     fn solves_puzzles() {
-        let config = EngineConfig{
-            depth: 1,
-            deep_depth: 3,
-            debug: false,
-        };
+        let config = EngineConfig::default();
         let reader = get_puzzles_buf();
         for (i, line) in reader.lines().enumerate() {
             let line: String = line.unwrap();
