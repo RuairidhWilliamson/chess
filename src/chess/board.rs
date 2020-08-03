@@ -8,6 +8,7 @@ use super::SIZE;
 use super::position_iter::PositionIter;
 use std::fmt;
 
+#[derive(Clone, Copy)]
 pub struct Board {
     pieces: [Option<Piece>; SQUARE_SIZE],
     pub turn: Colour,
@@ -84,6 +85,10 @@ impl Board {
             half_move_number: 0,
             move_number: 1,
         }
+    }
+
+    pub fn is_checkmate(&self) -> bool {
+        self.possible_moves().len() == 0 && self.is_check(self.turn)
     }
 
     // Modifies the board by playing a move returns if it is valid or not

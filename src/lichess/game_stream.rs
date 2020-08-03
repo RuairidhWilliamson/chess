@@ -68,7 +68,7 @@ impl GameStream {
 
     fn parse_game_state(&self, json: String) {
         let game_state: data::game_state::GameState = serde_json::from_str(&json).unwrap();
-        self.tx.send(game_state.to_engine_game(&self.api, self.game_full.as_ref().unwrap())).unwrap();
+        self.tx.send(game_state.to_engine_game(&self.api, self.game_full.as_ref().unwrap())).expect("Parse game_state");
     }
 
     fn parse_chat_line(&self, json: String) {

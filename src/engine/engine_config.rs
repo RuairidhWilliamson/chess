@@ -22,6 +22,6 @@ impl EngineConfig {
     }
 
     pub fn default_debug(debug: bool) -> Self {
-        Self::new(10f32, 0.5f32, 3, debug)
+        Self::new(20f32, 0.5f32, 3, debug)
     }
 }

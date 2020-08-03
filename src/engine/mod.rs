@@ -4,3 +4,4 @@ pub mod game;
 pub mod evaluator;
 pub mod engine_config;
 pub mod puzzles;
+pub mod evaluated;

@@ -15,6 +15,12 @@ impl fmt::Display for Move {
     }
 }
 
+impl fmt::Debug for Move {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.to_symbol())
+    }
+}
+
 impl Move {
     pub fn new(from: Position, to: Position) -> Self {
         Self{

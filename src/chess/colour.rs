@@ -23,4 +23,11 @@ impl Colour {
     pub fn opposite(&self) -> Colour {
         if self == &Colour::White { Colour::Black } else { Colour::White }
     }
+
+    pub fn to_num(&self) -> isize {
+        match self {
+            Colour::White => 1,
+            Colour::Black => -1,
+        }
+    }
 }
