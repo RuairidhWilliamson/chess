@@ -99,17 +99,31 @@ impl Board {
             from_piece.is_some() && from_piece.unwrap().colour == self.turn
             && (to_piece.is_none() || to_piece.unwrap().colour != self.turn);
         if !result { return false; }
+
+        // Castle
         let from = from_piece.unwrap();
         match from.kind {
             PieceKind::Rook => self.update_can_castle(m, from.colour),
             PieceKind::King => self.play_king_move(m, from.colour),
             _ => (),
         }
+        // Promotion
         if from.kind == PieceKind::Pawn && m.to.y * 2 == (SIZE - 1) * (1 + Self::get_pawn_direction(self.turn)) {
             self.set(Some(Piece::new(m.promote.unwrap_or(PieceKind::Queen), self.turn)), m.to);
         } else {
             self.set(from_piece, m.to);
         }
+
+        // En passant
+        if self.en_passant.is_some() && m.to == self.en_passant.unwrap() {
+            self.set(None, Position{x: m.to.x, y: m.from.y});
+        }
+        if from.kind == PieceKind::Pawn && (m.to.y - m.from.y == 2 || m.from.y - m.to.y == 2) {
+            self.en_passant = Some(m.from.average(m.to));
+        } else {
+            self.en_passant = None;
+        }
+
         self.set(None, m.from);
         self.turn = self.turn.opposite();
         result
@@ -233,6 +247,16 @@ impl Board {
         if f(Position{x, y: y + direction}) {
             if y == SIZE - 2 || y == 1 {
                 f(Position{x, y: y + direction * 2});
+            }
+        }
+        if self.en_passant.is_some() {
+            let new_pos = Position{x: x + 1, y: y + direction};
+            if pos == self.en_passant.unwrap() {
+                out.push(Move::new(pos, new_pos));
+            }
+            let new_pos = Position{x: x - 1, y: y + direction};
+            if pos == self.en_passant.unwrap() {
+                out.push(Move::new(pos, new_pos));
             }
         }
         let mut g = |new_pos: Position| -> bool {

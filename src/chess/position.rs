@@ -1,7 +1,7 @@
 use super::SIZE;
 use std::fmt;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq)]
 pub struct Position {
     pub x: i8,
     pub y: i8,
@@ -12,6 +12,7 @@ impl fmt::Debug for Position {
         write!(f, "{}", self.to_symbol())
     }
 }
+
 
 impl Position {
     pub fn new(x: i8, y: i8) -> Self {
@@ -41,6 +42,13 @@ impl Position {
             return String::default();
         }
         format!("{}{}", (self.x + 97) as u8 as char, (self.y + 49) as u8 as char)
+    }
+
+    pub fn average(self, other: Self) -> Self {
+        Self {
+            x: (self.x + other.x) / 2,
+            y: (self.y + other.y) / 2,
+        }
     }
 }
 
